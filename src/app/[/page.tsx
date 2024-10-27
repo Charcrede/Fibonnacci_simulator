@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -15,7 +15,7 @@ export default function Home() {
   const d2 = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
   const d3 = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
   const fibonacci = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765];
-  
+
   const [mise, setMise] = useState<number[]>([]);
   const [jeux, setJeux] = useState<any[]>([]);
   const [currentMise, setCurrentMise] = useState(initMise);
@@ -27,24 +27,15 @@ export default function Home() {
     let n = Math.floor(Math.random() * 37);
     let newJeux = [...jeux];
     
-    if (l1.includes(n)) {
-      newJeux.push({ l1: 1, l2: 0, l3: 0, d1: 0, d2: 0, d3: 0 });
-    } else if (l2.includes(n)) {
-      newJeux.push({ l1: 0, l2: 1, l3: 0, d1: 0, d2: 0, d3: 0 });
-    } else if (l3.includes(n)) {
-      newJeux.push({ l1: 0, l2: 0, l3: 1, d1: 0, d2: 0, d3: 0 });
-    } else {
-      newJeux.push({ l1: 0, l2: 0, l3: 0, d1: 0, d2: 0, d3: 0 });
-    }
+    let newRound = { l1: 0, l2: 0, l3: 0, d1: 0, d2: 0, d3: 0 };
+    if (l1.includes(n)) newRound.l1 = 1;
+    if (l2.includes(n)) newRound.l2 = 1;
+    if (l3.includes(n)) newRound.l3 = 1;
+    if (d1.includes(n)) newRound.d1 = 1;
+    if (d2.includes(n)) newRound.d2 = 1;
+    if (d3.includes(n)) newRound.d3 = 1;
     
-    if (d1.includes(n)) {
-      newJeux[newJeux.length - 1].d1 = 1;
-    } else if (d2.includes(n)) {
-      newJeux[newJeux.length - 1].d2 = 1;
-    } else if (d3.includes(n)) {
-      newJeux[newJeux.length - 1].d3 = 1;
-    }
-
+    newJeux.push(newRound);
     setJeux(newJeux);
   };
 
@@ -63,37 +54,27 @@ export default function Home() {
 
   const verify = () => {
     const lastRounds = jeux.slice(-tour);
-    let miseArray = [];
+    let miseArray: string | any[] | ((prevState: number[]) => number[]) = [];
 
-    if (lastRounds.every(round => round.l1 === 0)) {
-      miseArray = l1;
-    } else if (lastRounds.every(round => round.l2 === 0)) {
-      miseArray = l2;
-    } else if (lastRounds.every(round => round.l3 === 0)) {
-      miseArray = l3;
-    } else if (lastRounds.every(round => round.d1 === 0)) {
-      miseArray = d1;
-    } else if (lastRounds.every(round => round.d2 === 0)) {
-      miseArray = d2;
-    } else if (lastRounds.every(round => round.d3 === 0)) {
-      miseArray = d3;
-    } else {
-      return;
-    }
+    if (lastRounds.every(round => round.l1 === 0)) miseArray = l1;
+    else if (lastRounds.every(round => round.l2 === 0)) miseArray = l2;
+    else if (lastRounds.every(round => round.l3 === 0)) miseArray = l3;
+    else if (lastRounds.every(round => round.d1 === 0)) miseArray = d1;
+    else if (lastRounds.every(round => round.d2 === 0)) miseArray = d2;
+    else if (lastRounds.every(round => round.d3 === 0)) miseArray = d3;
 
     setMise(miseArray);
 
     if (miseArray.length > 0) {
-      // Calcule les gains et les mises Fibonacci
-      setCurrentCapital(currentCapital + currentMise * fibonacci[fibonacciIndex]);
-      setFibonacciIndex(fibonacciIndex + 1);
+      setCurrentCapital(prev => prev + currentMise);
+      setFibonacciIndex(prev => (prev < fibonacci.length - 1 ? prev + 1 : 0));
       setCurrentMise(initMise * fibonacci[fibonacciIndex]);
 
       if (currentCapital >= capital + gain) {
         alert("Félicitations ! Vous avez atteint l'objectif de gain.");
       } else {
         setTourRestants(tour); 
-        simule(); // Redémarre la simulation pour continuer les mises
+        simule(); 
       }
     }
   };
